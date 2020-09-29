@@ -9,7 +9,7 @@ import random
 from lxml import etree
 from scrapy.selector import Selector
 
-keyWord = input(f"{'Please input the keywords that you want to download :'}")
+#keyWord = input(f"{'Please input the keywords that you want to download :'}")
 #keyWord="angel"
 class Spider():
     #初始化参数
@@ -19,7 +19,7 @@ class Spider():
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.104 Safari/537.36",
         }
         #filePath是自定义的，本次程序运行后创建的文件夹路径，存放各种需要下载的对象。
-        self.filePath = ('D:/mydir/wallpaper/'+ keyWord + '/')
+        self.filePath = ('D:/mydir/wallpaper/toplist/')
 
     def creat_File(self):
         #新建本地的文件夹路径，用于存储网页、图片等数据！
@@ -33,7 +33,8 @@ class Spider():
         #用来获取搜索关键词得到的结果总页面数,用totalPagenum记录。由于数字是夹在形如：1,985 Wallpapers found for “dog”的string中，
         #所以需要用个小函数，提取字符串中的数字保存到列表numlist中，再逐个拼接成完整数字。。。
         total = ""
-        url = ("https://wallhaven.cc/search?q={}&categories=110&purity=100&atleast=1920x1080&sorting=relevance&order=desc").format(keyWord)#categories=110中数字表示general，anime和people
+        url = ("https://wallhaven.cc/toplist")
+        #url = ("https://wallhaven.cc/search?q={}&categories=110&purity=100&atleast=1920x1080&sorting=relevance&order=desc").format(keyWord)#categories=110中数字表示general，anime和people
         html = requests.get(url)
         html.encoding='utf-8'
         #html_text = bytes(bytearray(html.text, encoding='utf-8'))
@@ -51,7 +52,8 @@ class Spider():
     def main_fuction(self):
         #count是总图片数，times是总页面数
         self.creat_File()
-        count = self.get_pageNum()
+        count = 138
+        #count = self.get_pageNum()
         print("We have found:{} images!".format(count))
         times = int(count/24 + 1)
         #j = 1
@@ -68,7 +70,8 @@ class Spider():
 
     def getLinks(self,number):
         #此函数可以获取给定numvber的页面中所有图片的链接，用List形式返回
-        url = ("https://wallhaven.cc/search?q={}&categories=110&purity=100&atleast=1920x1080&sorting=relevance&order=desc&page={}").format(keyWord,number)
+        url = ("https://wallhaven.cc/toplist?page={}").format(number)
+        #url = ("https://wallhaven.cc/search?q={}&categories=110&purity=100&atleast=1920x1080&sorting=relevance&order=desc&page={}").format(keyWord,number)
         try:
             html = requests.get(url)
             selector = etree.HTML(html.text)
@@ -94,12 +97,12 @@ class Spider():
         #selector = etree.HTML(res.text)
         #html = str(selector.xpath('/html/body/main/section/div[1]/img/@src')[0])#将获取的下载链接转化为str
 
-        pic_path = (self.filePath + keyWord + str(count) + '.jpg' )
+        pic_path = (self.filePath + 'toplist' + str(count) + '.jpg' )
         try:
             pic = requests.get(html,headers = self.headers)
             if pic.status_code==404:#当图片为png格式时返回404，此时启用png备胎并将图片存为png格式
                 pic = requests.get(html2,headers = self.headers)
-                pic_path = (self.filePath + keyWord + str(count) + '.png' )
+                pic_path = (self.filePath + 'toplist' + str(count) + '.png' )
             f = open(pic_path,'wb')
             f.write(pic.content)
             f.close()
