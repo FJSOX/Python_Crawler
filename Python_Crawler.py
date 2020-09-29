@@ -9,8 +9,8 @@ import random
 from lxml import etree
 from scrapy.selector import Selector
 
-#keyWord = input(f"{'Please input the keywords that you want to download :'}")
-keyWord="angel"
+keyWord = input(f"{'Please input the keywords that you want to download :'}")
+#keyWord="angel"
 class Spider():
     #初始化参数
     def __init__(self):
