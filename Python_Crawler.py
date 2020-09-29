@@ -2,6 +2,7 @@
 #__author__='阳光流淌007'#but代码与20200929失效了，FJSOX对此代码进行了修改使其能够再次运行
 #__date__='2018-01-21'
 #爬取wallhaven上的的图片，支持自定义搜索关键词，自动爬取并该关键词下所有图片并存入本地电脑。
+#此分支仅用于爬取toplist词条下的图片
 import os
 import requests
 import time
@@ -33,29 +34,31 @@ class Spider():
         #用来获取搜索关键词得到的结果总页面数,用totalPagenum记录。由于数字是夹在形如：1,985 Wallpapers found for “dog”的string中，
         #所以需要用个小函数，提取字符串中的数字保存到列表numlist中，再逐个拼接成完整数字。。。
         total = ""
-        url = ("https://wallhaven.cc/toplist")
+        url = ("https://wallhaven.cc/search?categories=110&purity=100&atleast=1920x1080&topRange=1M&sorting=toplist&order=desc&page=2")
         #url = ("https://wallhaven.cc/search?q={}&categories=110&purity=100&atleast=1920x1080&sorting=relevance&order=desc").format(keyWord)#categories=110中数字表示general，anime和people
         html = requests.get(url)
         html.encoding='utf-8'
         #html_text = bytes(bytearray(html.text, encoding='utf-8'))
         #print(html.content)
         selector = etree.HTML(html.text)
-        pageInfo = selector.xpath('/html/body/main/header/h1/text()')
-        string = str(pageInfo[0])
-        numlist = list(filter(str.isdigit,string))#提取按个位分离的数字列表
-        for item in numlist:
-            total += item
-        totalPagenum = int(total)
+        #提取页数
+        pageInfo = selector.xpath('/html/body/main/div[1]/section/header/h2/text()')
+        string = str(pageInfo[1][2:])
+
+        #numlist = list(filter(str.isdigit,string))#提取按个位分离的数字列表
+        #for item in numlist:
+        #    total += item
+        totalPagenum = int(string)
         #print(totalPagenum)
         return totalPagenum
 
     def main_fuction(self):
         #count是总图片数，times是总页面数
         self.creat_File()
-        count = 138
-        #count = self.get_pageNum()
-        print("We have found:{} images!".format(count))
-        times = int(count/24 + 1)
+        #count = 138
+        count = self.get_pageNum()
+        print("We have found:{} page images!".format(count))
+        times = int(count)
         #j = 1
         #pagenum=input("Please input how many pages you want to download(betweens 1 to " + str(times) + "):")#输入想要下载到的页码
         beginpage=input("Please input begin page number which you want to download(betweens 1 to " + str(times) + "):")#开始页码
@@ -70,7 +73,7 @@ class Spider():
 
     def getLinks(self,number):
         #此函数可以获取给定numvber的页面中所有图片的链接，用List形式返回
-        url = ("https://wallhaven.cc/toplist?page={}").format(number)
+        url = ("https://wallhaven.cc/search?categories=110&purity=100&atleast=1920x1080&topRange=1M&sorting=toplist&order=desc&page={}").format(number)
         #url = ("https://wallhaven.cc/search?q={}&categories=110&purity=100&atleast=1920x1080&sorting=relevance&order=desc&page={}").format(keyWord,number)
         try:
             html = requests.get(url)
@@ -107,7 +110,7 @@ class Spider():
             f.write(pic.content)
             f.close()
             print("Image:{} has been downloaded!".format(count))
-            time.sleep(random.uniform(0,0.5))#下完后随机休眠0~0.5s以防服务器发现是爬虫
+            #time.sleep(random.uniform(0,0.5))#下完后随机休眠0~0.5s以防服务器发现是爬虫
         except Exception as e:
             print(repr(e))
 
