@@ -15,11 +15,12 @@ class Spider():
     #初始化参数
     def __init__(self):
         #headers是请求头，"User-Agent"、"Accept"等字段都是通过谷歌Chrome浏览器查找的！
+        self.keyWord=keyWord
         self.headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.104 Safari/537.36",
         }
         #filePath是自定义的，本次程序运行后创建的文件夹路径，存放各种需要下载的对象。
-        self.filePath = ('D:/mydir/wallpaper/'+ keyWord + '/')
+        self.filePath = ('D:/mydir/wallpaper/'+ self.keyWord + '/')
 
     def creat_File(self):
         #新建本地的文件夹路径，用于存储网页、图片等数据！
@@ -29,7 +30,7 @@ class Spider():
             os.makedirs(filePath)
         #print(filePath)
 
-    def get_pageNum(self):
+    def get_pageNum(self,keyWord):
         #用来获取搜索关键词得到的结果总页面数,用totalPagenum记录。由于数字是夹在形如：1,985 Wallpapers found for “dog”的string中，
         #所以需要用个小函数，提取字符串中的数字保存到列表numlist中，再逐个拼接成完整数字。。。
         total = ""
@@ -50,9 +51,17 @@ class Spider():
 
     def main_fuction(self):
         #count是总图片数，times是总页面数
+        
+        count=0
+        
+        while (count==0):
+            count = self.get_pageNum(self.keyWord)
+            print("We have found:{} images!".format(count))
+            if (count==0):
+                self.keyWord = input(f"{'Please re@input the keywords that you want to download :'}")
+
+        self.filePath = ('D:/mydir/wallpaper/'+ self.keyWord + '/')
         self.creat_File()
-        count = self.get_pageNum()
-        print("We have found:{} images!".format(count))
         times = int(count/24 + 1)
         #j = 1
         #pagenum=input("Please input how many pages you want to download(betweens 1 to " + str(times) + "):")#输入想要下载到的页码
@@ -61,13 +70,13 @@ class Spider():
             if (beginpage<=times and beginpage>=1):
                 break
             else:
-                print("Please input a number in the range of 1 to {}".format(times))
+                print("Please input a number in the range of 1 to {}!".format(times))
         while (True):
             pagenum=int(input("Please input how many pages that you want to download(betweens 1 to " + str(times) + "):"))#页码数
             if (pagenum<=times-beginpage+1 and pagenum>=1):
                 break
             else:
-                print("Please input a number in the range of 1 to {}".format(timestimes-beginpage+1))
+                print("Please input a number in the range of 1 to {}!".format(timestimes-beginpage+1))
         rg=range(times)#构建页码list
         for i in rg[beginpage-1:beginpage+pagenum-1]:#从开始页码（beginpage）遍历页码数（pagenam）个页码，i+1为页码
             pic_Urls = self.getLinks(i+1)
