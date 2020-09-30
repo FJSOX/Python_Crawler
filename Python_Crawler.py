@@ -61,8 +61,19 @@ class Spider():
         times = int(count)
         #j = 1
         #pagenum=input("Please input how many pages you want to download(betweens 1 to " + str(times) + "):")#输入想要下载到的页码
-        beginpage=input("Please input begin page number which you want to download(betweens 1 to " + str(times) + "):")#开始页码
-        pagenum=input("Please input how many pages that you want to download(betweens 1 to " + str(times) + "):")#页码数
+        while (True):
+            beginpage=input("Please input begin page number which you want to download(betweens 1 to " + str(times) + "):")#开始页码
+            if (int(beginpage)>times or int(beginpage)<1):
+                print("Please input a number in the range 1 to {}!".format(times))
+            else:
+                break
+
+        while (True):
+            pagenum=input("Please input how many pages that you want to download(betweens 1 to " + str(times-int(beginpage)+1) + "):")#页码数
+            if (int(pagenum)>times-int(beginpage)+1 or int(beginpage)<1):
+                print("Please input a number in the range 1 to {}!".format(times-int(beginpage)+1))
+            else:
+                break
         rg=range(times)#构建页码list
         for i in rg[int(beginpage)-1:int(beginpage)+int(pagenum)-1]:#从开始页码（beginpage）遍历页码数（pagenam）个页码，i+1为页码
             pic_Urls = self.getLinks(i+1)
