@@ -2,6 +2,7 @@
 #__author__='阳光流淌007'#but代码与20200929失效了，FJSOX对此代码进行了修改使其能够再次运行
 #__date__='2018-01-21'
 #爬取wallhaven上的的图片，通过输入需要爬取页面的url，获取链接，自动爬取并该关键词下所有图片并存入本地电脑。
+#__Ndate__='2020-11-24'
 import os
 import requests
 import time
@@ -48,24 +49,41 @@ class Spider():
         numlist = list(filter(str.isdigit,string))#提取按个位分离的数字列表
         for item in numlist:
             total += item
-        totalPagenum = int(total)
-        #print(totalPagenum)
+
+        if total=='':
+            try:
+                pageInfo = selector.xpath('/html/body/main/div[1]/section/header/h2/text()')
+                string = str(pageInfo[1][2:]) 
+                if string=='':
+                    raise Exception("Url Error, please change a new url!", string)
+                totalPagenum = int(string)
+                
+            except Exception as e:
+                print(repr(e))
+                return self.get_pageNum()
+            else:
+                return totalPagenum
+                # return self.get_pageNum()
+
+        count=int(total)
+        print("We have found:{} images!".format(count))
+        if (count==0):
+            print("Please change a new url!")
+            return self.get_pageNum()
+
+        totalnum = int(total)
+        totalPagenum = int(totalnum/24 + 1)
         return totalPagenum
+
 
     def main_fuction(self):
         #count是总图片数，times是总页面数
         
-        count=0
-        
-        while (count==0):
-            count = self.get_pageNum()
-            print("We have found:{} images!".format(count))
-            if (count==0):
-                self.keyWord = input(f"{'Please re@input the keywords that you want to download :'}")
+        times=self.get_pageNum()
 
         self.filePath = ('D:/mydir/wallpaper/'+ self.keyWord + '/')
         self.creat_File()
-        times = int(count/24 + 1)
+        #times = int(count/24 + 1)
         #j = 1
         #pagenum=input("Please input how many pages you want to download(betweens 1 to " + str(times) + "):")#输入想要下载到的页码
         while (True):
