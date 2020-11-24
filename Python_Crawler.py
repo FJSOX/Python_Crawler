@@ -1,7 +1,7 @@
 #_*_ coding:utf-8 _*_
 #__author__='阳光流淌007'#but代码与20200929失效了，FJSOX对此代码进行了修改使其能够再次运行
 #__date__='2018-01-21'
-#爬取wallhaven上的的图片，支持自定义搜索关键词，自动爬取并该关键词下所有图片并存入本地电脑。
+#爬取wallhaven上的的图片，通过输入需要爬取页面的url，获取链接，自动爬取并该关键词下所有图片并存入本地电脑。
 import os
 import requests
 import time
@@ -9,7 +9,7 @@ import random
 from lxml import etree
 from scrapy.selector import Selector
 
-keyWord = input(f"{'Please input the keywords that you want to download :'}")
+keyWord = input(f"{'Please input the dirname which use to save image:'}")
 #keyWord="angel"
 class Spider():
     #初始化参数
@@ -21,6 +21,7 @@ class Spider():
         }
         #filePath是自定义的，本次程序运行后创建的文件夹路径，存放各种需要下载的对象。
         self.filePath = ('D:/mydir/wallpaper/'+ self.keyWord + '/')
+        self.url=''
 
     def creat_File(self):
         #新建本地的文件夹路径，用于存储网页、图片等数据！
@@ -30,12 +31,14 @@ class Spider():
             os.makedirs(filePath)
         #print(filePath)
 
-    def get_pageNum(self,keyWord):
+    def get_pageNum(self):
         #用来获取搜索关键词得到的结果总页面数,用totalPagenum记录。由于数字是夹在形如：1,985 Wallpapers found for “dog”的string中，
         #所以需要用个小函数，提取字符串中的数字保存到列表numlist中，再逐个拼接成完整数字。。。
         total = ""
-        url = ("https://wallhaven.cc/search?q={}&categories=110&purity=100&atleast=1920x1080&sorting=relevance&order=desc").format(keyWord)#categories=110中数字表示general，anime和people
-        html = requests.get(url)
+        #url = ("https://wallhaven.cc/search?q={}&categories=110&purity=100&atleast=1920x1080&sorting=relevance&order=desc").format(keyWord)#categories=110中数字表示general，anime和people
+        self.url = input("Please copy/input a url you want to download:")
+        
+        html = requests.get(self.url)
         html.encoding='utf-8'
         #html_text = bytes(bytearray(html.text, encoding='utf-8'))
         #print(html.content)
@@ -55,7 +58,7 @@ class Spider():
         count=0
         
         while (count==0):
-            count = self.get_pageNum(self.keyWord)
+            count = self.get_pageNum()
             print("We have found:{} images!".format(count))
             if (count==0):
                 self.keyWord = input(f"{'Please re@input the keywords that you want to download :'}")
@@ -72,11 +75,11 @@ class Spider():
             else:
                 print("Please input a number in the range of 1 to {}!".format(times))
         while (True):
-            pagenum=int(input("Please input how many pages that you want to download(betweens 1 to " + str(times) + "):"))#页码数
+            pagenum=int(input("Please input how many pages that you want to download(betweens 1 to " + str(times-beginpage+1) + "):"))#页码数
             if (pagenum<=times-beginpage+1 and pagenum>=1):
                 break
             else:
-                print("Please input a number in the range of 1 to {}!".format(timestimes-beginpage+1))
+                print("Please input a number in the range of 1 to {}!".format(times-beginpage+1))
         rg=range(times)#构建页码list
         for i in rg[beginpage-1:beginpage+pagenum-1]:#从开始页码（beginpage）遍历页码数（pagenam）个页码，i+1为页码
             pic_Urls = self.getLinks(i+1)
@@ -87,7 +90,7 @@ class Spider():
 
     def getLinks(self,number):
         #此函数可以获取给定numvber的页面中所有图片的链接，用List形式返回
-        url = ("https://wallhaven.cc/search?q={}&categories=110&purity=100&atleast=1920x1080&sorting=relevance&order=desc&page={}").format(keyWord,number)
+        url = self.url[0:-2]+str(number)
         try:
             html = requests.get(url)
             selector = etree.HTML(html.text)
