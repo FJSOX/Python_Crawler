@@ -37,16 +37,22 @@ class Spider():
         #所以需要用个小函数，提取字符串中的数字保存到列表numlist中，再逐个拼接成完整数字。。。
         total = ""
         #url = ("https://wallhaven.cc/search?q={}&categories=110&purity=100&atleast=1920x1080&sorting=relevance&order=desc").format(keyWord)#categories=110中数字表示general，anime和people
-        self.url = input("Please copy/input a url you want to download:")
+        try:
+            self.url = input("Please copy/input a url you want to download:")
         
-        html = requests.get(self.url)
-        html.encoding='utf-8'
-        #html_text = bytes(bytearray(html.text, encoding='utf-8'))
-        #print(html.content)
-        selector = etree.HTML(html.text)
-        pageInfo = selector.xpath('/html/body/main/header/h1/text()')
-        string = str(pageInfo[0])
-        numlist = list(filter(str.isdigit,string))#提取按个位分离的数字列表
+            html = requests.get(self.url)
+            html.encoding='utf-8'
+            #html_text = bytes(bytearray(html.text, encoding='utf-8'))
+            #print(html.content)
+            selector = etree.HTML(html.text)
+            pageInfo = selector.xpath('/html/body/main/header/h1/text()')
+            string = str(pageInfo[0])
+            numlist = list(filter(str.isdigit,string))#提取按个位分离的数字列表
+        except Exception as e:
+            print(repr(e))
+            print("Please change a new url!")
+            return self.get_pageNum()
+
         for item in numlist:
             total += item
 
@@ -108,7 +114,11 @@ class Spider():
 
     def getLinks(self,number):
         #此函数可以获取给定numvber的页面中所有图片的链接，用List形式返回
-        url = self.url[0:-2]+str(number)
+        url =self.url
+        while url[-1]!='=':
+            url = url[0:-1]
+
+        url=url+str(number)
         try:
             html = requests.get(url)
             selector = etree.HTML(html.text)
